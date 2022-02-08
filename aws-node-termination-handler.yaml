@@ -1,0 +1,18 @@
+repoURL: https://github.com/aws/aws-node-termination-handler.git
+path: config/helm/aws-node-termination-handler
+namespace: kube-system
+values:
+  enableSpotInterruptionDraining: true
+  enableScheduledEventDraining: true
+  deleteLocalData: true
+  ignoreDaemonSets: true
+  # podAnnotations:
+  #   iam.amazonaws.com/role: k8s-aws-node-termination-handler
+
+  resources:
+    requests:
+      memory: 40Mi
+      cpu: 1m
+    limits:
+      memory: 70Mi
+      cpu: 10m

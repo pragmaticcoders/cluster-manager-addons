@@ -1,0 +1,3 @@
+repoURL: https://github.com/kubecare/cluster-manager-addons.git
+path: toolbox
+namespace: toolbox

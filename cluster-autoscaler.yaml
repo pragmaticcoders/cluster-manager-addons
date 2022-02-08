@@ -1,0 +1,31 @@
+repoURL: https://github.com/helm/charts
+path: stable/cluster-autoscaler
+targetRevision: 6452fa00c800f9dcd8bd82039b4e3ab719f51a1a
+values:
+  fullnameOverride: cluster-autoscaler
+
+  awsRegion: eu-west-1
+
+  podAnnotations:
+    iam.amazonaws.com/role: k8s-cluster-autoscaler
+
+  rbac:
+    create: true
+
+  resources:
+    limits:
+      cpu: 50m
+      memory: 100Mi
+    requests:
+      cpu: 2m
+      memory: 30Mi
+
+  serviceMonitor:
+    enabled: true
+    interval: "10s"
+    namespace: monitoring
+    ## Defaults to whats used if you follow CoreOS [Prometheus Install Instructions](https://github.com/helm/charts/tree/master/stable/prometheus-operator#tldr)
+    ## [Prometheus Selector Label](https://github.com/helm/charts/tree/master/stable/prometheus-operator#prometheus-operator-1)
+    ## [Kube Prometheus Selector Label](https://github.com/helm/charts/tree/master/stable/prometheus-operator#exporters)
+    selector:
+      prometheus: kube-prometheus

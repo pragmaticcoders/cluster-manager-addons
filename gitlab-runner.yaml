@@ -1,0 +1,86 @@
+repoURL: https://gitlab.com/gitlab-org/charts/gitlab-runner.git
+path: .
+namespace: gitlab-runner
+values:
+  gitlabUrl: https://gitlab.com/
+  runnerRegistrationToken: "%SETTINGS_runnerToken"
+
+  concurrent: 10
+  checkInterval: 30
+
+  rbac:
+    create: true
+
+  resources:
+    limits:
+      memory: 256Mi
+      cpu: 200m
+    requests:
+      memory: 128Mi
+      cpu: 100m
+
+  nodeSelector: {}
+    # Example: The gitlab runner manager should not run on spot instances so you can assign
+    # them to the regular worker nodes only.
+    # node-role.kubernetes.io/worker: "true"
+
+  ## List of node taints to tolerate (requires Kubernetes >= 1.6)
+  ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  ##
+  tolerations: []
+    # Example: Regular worker nodes may have a taint, thus you need to tolerate the taint
+    # when you assign the gitlab runner manager with nodeSelector or affinity to the nodes.
+    # - key: "node-role.kubernetes.io/worker"
+    #   operator: "Exists"
+
+  podAnnotations: {}
+    # Example:
+    # iam.amazonaws.com/role: <my_role_arn>
+
+  runners:
+    image: luktom/ws
+    locked: false
+    requestConcurrency: 1
+    tags: "k8s"
+    runUntagged: true
+    privileged: true
+
+    # builds:
+    #   cpuLimit: 200m
+    #   cpuLimitOverwriteMaxAllowed: 1000m
+    #   memoryLimit: 256Mi
+    #   memoryLimitOverwriteMaxAllowed: 3500Mi
+    #   cpuRequests: 100m
+    #   cpuRequestsOverwriteMaxAllowed: 1000m
+    #   memoryRequests: 128Mi
+    #   memoryRequestsOverwriteMaxAllowed: 3500Mi
+
+    # services:
+    #   cpuLimit: 200m
+    #   memoryLimit: 256Mi
+    #   cpuRequests: 100m
+    #   memoryRequests: 128Mi
+
+    # helpers:
+    #   cpuLimit: 200m
+    #   memoryLimit: 256Mi
+    #   cpuRequests: 100m
+    #   memoryRequests: 128Mi
+    #   image: gitlab/gitlab-runner-helper:x86_64-latest
+
+    ## Specify node labels for CI job pods assignment
+    ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+    ##
+    # nodeSelector: {}
+
+    ## Specify node tolerations for CI job pods assignment
+    ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+    ##
+    # nodeTolerations: {}
+
+    ## Specify pod labels for CI job pods
+    ##
+    # podLabels: {}
+
+    ## Specify annotations for job pods, useful for annotations such as iam.amazonaws.com/role
+    # podAnnotations: {}

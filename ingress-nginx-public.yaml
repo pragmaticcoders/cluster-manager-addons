@@ -1,0 +1,59 @@
+repoURL: https://github.com/helm/charts
+path: stable/nginx-ingress
+namespace: ingress-nginx-public
+values:
+  controller:
+    image:
+      registry: eu.gcr.io
+      repository: k8s-artifacts-prod/ingress-nginx/controller
+
+    config:
+      use-proxy-protocol: "true"
+
+    electionID: ingress-controller-leader-public
+    ingressClass: nginx-public
+
+    publishService:
+      enabled: true
+
+    replicaCount: 2
+
+    resources:
+      limits:
+        cpu: 300m
+        memory: 128Mi
+      requests:
+        cpu: 10m
+        memory: 64Mi
+
+    service:
+      annotations:
+        service.beta.kubernetes.io/aws-load-balancer-connection-idle-timeout: "60"
+        service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "True"
+        service.beta.kubernetes.io/aws-load-balancer-proxy-protocol: '*'
+      omitclusterIP: true
+
+    metrics:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+
+  defaultBackend:
+    enabled: false
+
+overlayDefinitions:
+  singleInstance:
+    values:
+      controller:
+        replicaCount: 1
+
+  openvpnServer:
+    values:
+      tcp:
+        1194: "openvpn-server/openvpn-server:1194:PROXY"
+
+  sslPassthrough:
+    values:
+      controller:
+        extraArgs:
+          enable-ssl-passthrough: ""

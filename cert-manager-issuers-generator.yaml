@@ -1,0 +1,6 @@
+repoURL: https://github.com/kubecare/cert-manager-issuers-generator.git
+path: .
+namespace: kube-system
+values:
+  email: kamil.kosowski@pragmaticcoders.com
+  ingressClass: nginx-public

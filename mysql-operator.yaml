@@ -1,0 +1,3 @@
+repoURL: https://github.com/tomaszkiewicz/mysql-operator.git
+path: deploy
+namespace: mysql-operator

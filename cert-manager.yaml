@@ -1,0 +1,38 @@
+repoURL: https://github.com/jetstack/cert-manager.git
+path: deploy/charts/cert-manager
+targetRevision: release-0.12
+values:
+  global:
+    leaderElection:
+      namespace: "cert-manager"
+
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      cpu: 30m
+      memory: 32Mi
+
+  image:
+    tag: v0.13.0
+
+  podAnnotations:
+    iam.amazonaws.com/role: k8s-cert-manager
+
+  prometheus:
+    enabled: false
+
+  webhook:
+    enabled: false
+
+  cainjector:
+    enabled: false
+    replicaCount: 0
+    image:
+      tag: v0.13.0
+
+  ingressShim:
+    defaultIssuerName: dns-route53
+    defaultIssuerKind: ClusterIssuer
+  #  defaultIssuerGroup: cert-manager.io/v1alpha2

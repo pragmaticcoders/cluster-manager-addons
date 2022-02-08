@@ -1,0 +1,36 @@
+repoURL: https://github.com/helm/charts
+path: stable/kube-ops-view
+settings:
+  ingressHostname: "kube-ops-view.%SETTINGS_dnsSuffix"
+values:
+  rbac:
+    create: true
+
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: nginx-public
+      kubernetes.io/tls-acme: "true"
+    hostname: "%SETTINGS_ingressHostname"
+    tls:
+    - hosts:
+      - "%SETTINGS_ingressHostname"
+      secretName: kube-ops-view-tls
+
+  resources:
+    limits:
+      cpu: 50m
+      memory: 64Mi
+    requests:
+      cpu: 10m
+      memory: 32Mi
+
+overlayDefinitions:
+  oauth2ProxyIngress:
+    oauth2ProxyIngressHost: "kube-ops-view.%SETTINGS_dnsSuffix"
+    values:
+      prometheus:
+        ingress:
+          annotations:
+            nginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth"
+            nginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=$escaped_request_uri"

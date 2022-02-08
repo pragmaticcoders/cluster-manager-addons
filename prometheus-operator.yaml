@@ -1,0 +1,67 @@
+repoURL: https://github.com/helm/charts
+path: stable/prometheus-operator
+targetRevision: 75884aaa706d9cc67d1da99383a3d66be7073a33
+namespace: monitoring
+settings:
+  ingressHostnamePrometheus: "p8s.%SETTINGS_dnsSuffix"
+values:
+  grafana:
+    enabled: false
+
+  prometheusOperator:
+    tlsProxy:
+      enabled: false
+
+    admissionWebhooks:
+      enabled: false
+
+    resources:
+      limits:
+        cpu: 10m
+        memory: 64Mi
+      requests:
+        cpu: 2m
+        memory: 16Mi
+
+  alertmanager:
+    alertmanagerSpec:
+      resources:
+        requests:
+          cpu: 2m
+          memory: 20Mi
+        limits:
+          cpu: 10m
+          memory: 100Mi
+
+  prometheus:
+    ingress:
+      enabled: true
+      annotations:
+        kubernetes.io/ingress.class: nginx-public
+        kubernetes.io/tls-acme: "true"
+      hosts:
+      - "%SETTINGS_ingressHostnamePrometheus"
+      tls:
+      - secretName: prometheus-tls
+        hosts:
+        - "%SETTINGS_ingressHostnamePrometheus"
+
+    prometheusSpec:
+      externalUrl: "https://%SETTINGS_ingressHostnamePrometheus"
+      resources:
+        limits:
+          cpu: 100m
+          memory: 800Mi
+        requests:
+          cpu: 10m
+          memory: 500Mi
+
+overlayDefinitions:
+  oauth2ProxyIngress:
+    oauth2ProxyIngressHost: "p8s.%SETTINGS_dnsSuffix"
+    values:
+      prometheus:
+        ingress:
+          annotations:
+            nginx.ingress.kubernetes.io/auth-url: "https://$host/oauth2/auth"
+            nginx.ingress.kubernetes.io/auth-signin: "https://$host/oauth2/start?rd=$escaped_request_uri"
