@@ -1,0 +1,136 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "generic-service-chart.fullname" . }}
+  labels:
+{{ include "generic-service-chart.labels" . | indent 4 }}
+spec:
+  {{- if .Values.deploymentAdditionalSettings }}
+  {{- toYaml .Values.deploymentAdditionalSettings | nindent 2 }}
+  {{- end }}
+  replicas: {{ .Values.replicaCount }}
+  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "generic-service-chart.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "generic-service-chart.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    spec:
+    {{- if .Values.rbac.create }}
+      serviceAccountName: {{ include "generic-service-chart.fullname" . }}
+    {{- end }}
+    {{- if .Values.hostNetwork }}
+      hostNetwork: true
+    {{- end }}
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- if .Values.volumes }}
+      volumes:
+      {{ toYaml .Values.volumes | nindent 8 }}
+    {{- end }}
+    {{- if .Values.initContainers }}
+      initContainers:
+      {{ toYaml .Values.initContainers | nindent 8 }}
+    {{- end }}
+      containers:
+      {{- if .Values.sidecarContainers }}
+        {{- toYaml .Values.sidecarContainers | nindent 10 }}
+      {{- end }}
+        - name: app
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+          {{- if .Values.app.containerPort }}
+          - name: http
+            containerPort: {{ .Values.app.containerPort }}
+            protocol: TCP
+          {{- end }}
+          {{- if .Values.app.diagnosticsPort }}
+          - name: diagnostics
+            containerPort: {{ .Values.app.diagnosticsPort }}
+            protocol: TCP
+          {{- end }}
+          {{- if or .Values.env .Values.envDict}}
+          env:
+          {{- range $k, $v := .Values.envDict }}
+          - name: {{ $k | quote }}
+            value: {{ $v | quote }}
+          {{- end }}
+          {{- toYaml .Values.env | nindent 10 }}
+          {{- end }}
+          {{- if .Values.securityContext }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          {{- end }}
+          {{- if .Values.livenessProbe.enabled }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.livenessProbe.path }}
+              {{- if eq .Values.livenessProbe.port "auto" }}
+              {{- if .Values.app.diagnosticsPort }}
+              port: diagnostics
+              {{- else }}
+              port: http
+              {{- end }}
+              {{- else }}
+              port: {{ .Values.livenessProbe.port }}
+              {{- end }}
+              {{- if .Values.livenessProbe.additionalSettings }}
+              {{- toYaml .Values.livenessProbe.additionalSettings | nindent 12 }}
+              {{- end }}
+          {{- end }}
+          {{- if .Values.readinessProbe.enabled }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.readinessProbe.path }}
+              {{- if eq .Values.readinessProbe.port "auto" }}
+              {{- if .Values.app.diagnosticsPort }}
+              port: diagnostics
+              {{- else }}
+              port: http
+              {{- end }}
+              {{- else }}
+              port: {{ .Values.readinessProbe.port }}
+              {{- end }}
+              {{- if .Values.readinessProbe.additionalSettings }}
+              {{- toYaml .Values.readinessProbe.additionalSettings | nindent 12 }}
+              {{- end }}
+          {{- end }}
+          {{- if .Values.command }}
+          command:
+          {{- toYaml .Values.command | nindent 12 }}
+          {{- end }}
+          {{- if .Values.args }}
+          args:
+          {{- toYaml .Values.args | nindent 12 }}
+          {{- end }}
+          {{- if .Values.resources }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          {{- end }}
+          {{- if .Values.volumeMounts }}
+          volumeMounts:
+            {{- toYaml .Values.volumeMounts | nindent 12 }}
+          {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
