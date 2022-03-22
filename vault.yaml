@@ -1,4 +1,4 @@
-repoURL: https://helm.releases.hashicorp.com
+repoURL: https://github.com/hashicorp/vault-helm
 path: .
 values:
   # Vault Helm Chart Value Overrides
