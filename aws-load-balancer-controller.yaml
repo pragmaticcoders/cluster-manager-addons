@@ -1,0 +1,7 @@
+repoURL: https://github.com/aws/eks-charts
+path: stable/aws-load-balancer-controller
+namespace: ingress-controller
+values:
+  serviceAccount:
+    create: false
+    name: aws-load-balancer-controller
