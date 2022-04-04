@@ -1,0 +1,3 @@
+repoURL: https://github.com/kubernetes-sigs/aws-efs-csi-driver
+path: charts/aws-efs-csi-driver
+namespace: kube-system
